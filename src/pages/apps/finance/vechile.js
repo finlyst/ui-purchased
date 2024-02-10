@@ -11,6 +11,7 @@ import {
   InputLabel,
   Stack,
   TextField,
+  Button
 } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
@@ -53,7 +54,15 @@ const getInitialValues = (vechile) => {
 
 // ==============================|| vechile ADD / EDIT - FORM ||============================== //
 
-const FormVechileProfile = ({vechile, indexvechileProfileHander}) => {
+const FormVechileProfile = ({vechile, indexvechileProfileHander,
+  activeStep,
+  handleBack,
+  steps,
+  completed,
+  handleComplete,
+  totalSteps,
+  completedSteps,
+  handleNext}) => {
   const [openAlert, setOpenAlert] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -95,6 +104,11 @@ const FormVechileProfile = ({vechile, indexvechileProfileHander}) => {
     }
   });
 
+  // const handleChildSubmit= () => {
+  //   console.log('formik values')
+  //   console.log(formik.values);
+  //   handleNext(activeStep, formik.values);
+  // }
   const { errors, touched, handleSubmit, getFieldProps } = formik;
 
   if (loading)
@@ -115,7 +129,6 @@ const FormVechileProfile = ({vechile, indexvechileProfileHander}) => {
             <Divider />
             <DialogContent sx={{ p: 2.5 }}>
               <Grid container spacing={3}>
-               
                 <Grid item xs={12} md={12}>
                   <Grid container spacing={3}>
                     <Grid item xs={12} sm={6} md={4}>
@@ -124,8 +137,8 @@ const FormVechileProfile = ({vechile, indexvechileProfileHander}) => {
                         <TextField
                           fullWidth
                           id="vechile-vechileNo"
-                          placeholder="Enter First Name"
-                          {...getFieldProps('firstName')}
+                          placeholder="Enter Vechile no"
+                          {...getFieldProps('vechileNo')}
                           error={Boolean(touched.vechileNo && errors.vechileNo)}
                           helperText={touched.vechileNo && errors.vechileNo}
                         />
@@ -137,7 +150,7 @@ const FormVechileProfile = ({vechile, indexvechileProfileHander}) => {
                         <TextField
                           fullWidth
                           id="vechile-chassisNo"
-                          placeholder="Enter Last Name"
+                          placeholder="Enter Chassis Number"
                           {...getFieldProps('chassisNo')}
                           error={Boolean(touched.chassisNo && errors.chassisNo)}
                           helperText={touched.chassisNo && errors.chassisNo}
@@ -157,14 +170,14 @@ const FormVechileProfile = ({vechile, indexvechileProfileHander}) => {
                         />
                       </Stack>
                     </Grid>
-                    
+
                     <Grid item xs={12} sm={6} md={4}>
                       <Stack spacing={1}>
                         <InputLabel htmlFor="vechile-modelName">Model Name</InputLabel>
                         <TextField
                           fullWidth
                           id="vechile-modelName"
-                          placeholder="Enter Father Name"
+                          placeholder="Enter Model Name"
                           {...getFieldProps('modelName')}
                           error={Boolean(touched.modelName && errors.modelName)}
                           helperText={touched.modelName && errors.modelName}
@@ -174,12 +187,14 @@ const FormVechileProfile = ({vechile, indexvechileProfileHander}) => {
                     <Grid item xs={4}>
                       <Stack spacing={1}>
                         <InputLabel htmlFor="vechile-dofMfd">Date of Manufatured</InputLabel>
-                        <DatePicker 
-                        id="vechile-dofMfd"
-                        type="date"
-                        format='dd/MM/yyyy'
-                        onChange={(value) => {formik.setFieldValue("dofMfd",value)}}
-                        // {...getFieldProps('dofMfd')}
+                        <DatePicker
+                          id="vechile-dofMfd"
+                          type="date"
+                          format="dd/MM/yyyy"
+                          onChange={(value) => {
+                            formik.setFieldValue('dofMfd', value.toLocaleDateString());
+                          }}
+                          // {...getFieldProps('dofMfd')}
                         />
                       </Stack>
                     </Grid>
@@ -203,23 +218,48 @@ const FormVechileProfile = ({vechile, indexvechileProfileHander}) => {
                         <TextField
                           fullWidth
                           id="vechile-policyNo"
-                          placeholder="Enter vechile Information"
+                          placeholder="Enter vechile policy number"
                           {...getFieldProps('policyNo')}
                           error={Boolean(touched.policyNo && errors.policyNo)}
                           helperText={touched.policyNo && errors.policyNo}
                         />
                       </Stack>
                     </Grid>
-                    
                   </Grid>
                 </Grid>
               </Grid>
             </DialogContent>
             <Divider />
-           
           </Form>
         </LocalizationProvider>
       </FormikProvider>
+      <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
+        <Button variant="outlined" disabled={activeStep === 0} onClick={() => handleBack(activeStep,formik.values)} sx={{ mr: 1 }}>
+          Back
+        </Button>
+        <Box sx={{ flex: '1 1 auto' }} />
+        {activeStep !== steps &&
+          (completed[activeStep] ? (
+            <Button color="success">Step {activeStep + 1} already completed</Button>
+          ) : (
+            <Button
+              onClick={() => handleComplete(activeStep,formik.values)}
+              color="success"
+              variant={activeStep === totalSteps() - 1 ? 'contained' : 'outlined'}
+            >
+              {completedSteps() === totalSteps() - 1 ? 'Finish' : 'Complete Step'}
+            </Button>
+          ))}
+        <Button
+          disabled={activeStep === steps - 1}
+          onClick={() => handleNext(activeStep,formik.values)}
+          sx={{ ml: 1 }}
+          variant="contained"
+          color="primary"
+        >
+          Next
+        </Button>
+      </Box>
     </>
   );
 };

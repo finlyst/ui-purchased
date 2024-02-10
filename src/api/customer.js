@@ -19,9 +19,9 @@ export const endpoints = {
   delete: '/delete' // server URL
 };
 
-export function useGetCustomer() {
-  // const { data, isLoading, error, isValidating } = useSWR(endpoints.key+'/'+clientId, fetcher, {
-    const { data, isLoading, error, isValidating } = useSWR(endpoints.key+endpoints.list, fetcher, {
+export function useGetCustomer(clientId) {
+  const { data, isLoading, error, isValidating } = useSWR(baseUrl+endpoints.key+endpoints.list+'/'+clientId, fetcher, {
+    // const { data, isLoading, error, isValidating } = useSWR(endpoints.key+endpoints.list, fetcher, {
     revalidateIfStale: false,
     revalidateOnFocus: false,
     revalidateOnReconnect: false
@@ -135,6 +135,10 @@ export async function uploadPhoto(file) {
       throw error;
     });
   return response;
+}
+
+export async function getCustomerProfile(id){
+return axios.get(baseUrl + endpoints.key+'/'+id);
 }
 
 export function handlerCustomerDialog(modal) {

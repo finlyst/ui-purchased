@@ -18,7 +18,7 @@ import {
   import { LockOutlined, LinkOutlined } from '@ant-design/icons';
   
   // ==============================|| LAYOUTS -  COLUMNS ||============================== //
-  function InsuranceProfile() {
+  function InsuranceProfile({stepData}) {
     return (
       <Grid container spacing={3}>
         <Grid item xs={12}>

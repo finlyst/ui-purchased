@@ -307,7 +307,7 @@ const FormCustomerAdd = ({ customer, closeModal ,createdCustomer}) => {
                         <DatePicker 
                         id="customer-dob"
                         type="date"
-                        onChange={(value) => {formik.setFieldValue("dob",value)}}
+                        onChange={(value) => {formik.setFieldValue("dob",value.toLocaleDateString())}}
                         // {...getFieldProps('dob')}
                         />
                       </Stack>

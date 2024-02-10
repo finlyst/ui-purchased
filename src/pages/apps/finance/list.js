@@ -55,7 +55,7 @@ import AlertCustomerDelete from 'sections/apps/customer/AlertCustomerDelete';
 import ExpandingUserDetail from 'sections/apps/customer/ExpandingUserDetail';
 
 import { useGetCustomer } from 'api/customer';
-// import useAuth from 'hooks/useAuth';
+import useAuth from 'hooks/useAuth';
 // assets
 import { DeleteOutlined, EditOutlined, EyeOutlined, PlusOutlined } from '@ant-design/icons';
 
@@ -253,17 +253,27 @@ ReactTable.propTypes = {
 
 // ==============================|| CUSTOMER LIST ||============================== //
 
-const CustomerListPage = ({selectedCustomers}) => {
+const CustomerListPage = ({selectedCustomers,customers,
+  activeStep,
+  handleBack,
+  steps,
+  completed,
+  handleComplete,
+  totalSteps,
+  completedSteps,
+  handleNext}) => {
   const theme = useTheme();
-  // const {user}=useAuth();
+  const {user}=useAuth();
+  console.log('setps')
+  console.log(steps)
 
-  // const { customersLoading, customers: lists } = useGetCustomer(user.userId);
-  const { customersLoading, customers: lists } = useGetCustomer();
+  const { customersLoading, customers: lists } = useGetCustomer(user.userId);
+  // const { customersLoading, customers: lists } = useGetCustomer();
 
   const [open, setOpen] = useState(false);
 
   const [customerModal, setCustomerModal] = useState(false);
-  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [selectedCustomer, setSelectedCustomer] = useState(customers);
   const [customerDeleteId, setCustomerDeleteId] = useState('');
   const handleClose = () => {
     setOpen(!open);
@@ -275,11 +285,14 @@ const CustomerListPage = ({selectedCustomers}) => {
     const obj = {};
     obj[id]=true;
     setSelectedCustomer({...selectedCustomer,obj});
-    selectedCustomers({...selectedCustomer,obj});
+    selectedCustomers(selectedCustomer);
+    
   }
   const superSelectedrow =(selectedIds) => {
     console.log('selected rows ');
     console.log(selectedIds);
+    const obj = {};
+    obj[id]=true;
     setSelectedCustomer(selectedIds);
     selectedCustomers(selectedIds);
   }
@@ -340,8 +353,8 @@ const CustomerListPage = ({selectedCustomers}) => {
         }
       },
       {
-        header: 'Country',
-        accessorKey: 'country'
+        header: 'Location',
+        accessorKey: 'location'
       },
       {
         header: 'Status',
@@ -426,8 +439,26 @@ const CustomerListPage = ({selectedCustomers}) => {
           superSelectedrow
         }}
       />
+     
       <AlertCustomerDelete id={customerDeleteId} title={customerDeleteId} open={open} handleClose={handleClose} />
       <CustomerModal open={customerModal} modalToggler={setCustomerModal} customer={selectedCustomer} createdCustomer ={createdCustomer}/>
+      <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
+              <Button variant="outlined" disabled={activeStep === 0} onClick={() => handleBack(activeStep,selectedCustomer)} sx={{ mr: 1 }}>
+                Back
+              </Button>
+              <Box sx={{ flex: '1 1 auto' }} />
+              {activeStep !== steps &&
+                (completed[activeStep] ? (
+                  <Button color="success">Step {activeStep + 1} already completed</Button>
+                ) : (
+                  <Button onClick={() => handleComplete(activeStep,selectedCustomer)} color="success" variant={activeStep === totalSteps() - 1 ? 'contained' : 'outlined'}>
+                    {completedSteps() === totalSteps() - 1 ? 'Finish' : 'Complete Step'}
+                  </Button>
+                ))}
+              <Button disabled={activeStep === steps - 1} onClick={() => handleNext(activeStep,selectedCustomer)} sx={{ ml: 1 }} variant="contained" color="primary">
+                Next
+              </Button>
+            </Box>
     </>
   );
 };

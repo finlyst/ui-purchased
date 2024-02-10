@@ -12,6 +12,7 @@ import {
   InputLabel,
   Stack,
   TextField,
+  Button
 } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
@@ -23,6 +24,7 @@ import { useFormik, Form, FormikProvider } from 'formik';
 
 // project imports
 import CircularWithPath from 'components/@extended/progress/CircularWithPath';
+import { useRef } from 'react';
 
 // import { insertloan, updateloan ,uploadPhoto as loanPhotoUpload ,loansListUpdate} from 'api/loan';
 
@@ -36,7 +38,7 @@ const getInitialValues = (loan) => {
     loanAmt:'',
     tenureYears: '',
     tenureMonths: '',
-    roI: '',
+    roi: '',
     emi: '',
     emidate: null
   };
@@ -52,10 +54,20 @@ const getInitialValues = (loan) => {
 
 // ==============================|| loan ADD / EDIT - FORM ||============================== //
 
-const LoanProfile = ({loan, indexloanProfileHander}) => {
+const LoanProfile = ({loan, indexloanProfileHander,
+  activeStep,
+  handleBack,
+  steps,
+  completed,
+  handleComplete,
+  totalSteps,
+  completedSteps,
+  handleNext}) => {
   const [openAlert, setOpenAlert] = useState(false);
   const [loading, setLoading] = useState(true);
-
+  const [emiFeilds, setEmiFeilds]= useState({p:0,r:'00.00 %',t:0,m:0});
+  const t = useRef(0);
+  const m = useRef(0);
   const loanProfileHander=(profile) => {
     indexloanProfileHander(profile);
   }
@@ -69,7 +81,7 @@ const LoanProfile = ({loan, indexloanProfileHander}) => {
   const loanSchema = Yup.object().shape({
     loanAmt: Yup.string().max(255).required('Loan Amount is required'),
     tenure: Yup.string().max(255).required('Tenure is required'),
-    roI:Yup.string().max(255).required('Rate of interest is required'),
+    // roi:Yup.string().max(255).required('Rate of interest is required'),
     // emi: Yup.string().max(255).required('Engine Number is required'),
     emidate: Yup.string().max(255).required('Emi Date is required'),
   });
@@ -93,6 +105,7 @@ const LoanProfile = ({loan, indexloanProfileHander}) => {
   });
 
   const { errors, touched, handleSubmit, getFieldProps } = formik;
+  
 
   if (loading)
     return (
@@ -120,7 +133,8 @@ const LoanProfile = ({loan, indexloanProfileHander}) => {
                         <InputLabel htmlFor="loan-loanAmt">Loan Amount</InputLabel>
                         <NumericFormat  thousandSeparator="," fullWidth customInput={TextField} placeholder="Loan amount" 
                         id="loan-loanAmt"
-                        {...getFieldProps('emi')}
+                        {...getFieldProps('loanAmt')}
+                        onValueChange={value => setEmiFeilds({...emiFeilds,p:value.value})}
                         error={Boolean(touched.loanAmt && errors.loanAmt)}
                         helperText={touched.loanAmt && errors.loanAmt}/>
                         
@@ -133,7 +147,9 @@ const LoanProfile = ({loan, indexloanProfileHander}) => {
                         id="loan-roi"
                         {...getFieldProps('roi')}
                         error={Boolean(touched.roi && errors.roi)}
-                        helperText={touched.roi && errors.roi}/>
+                        helperText={touched.roi && errors.roi}
+                        onChange={value => {setEmiFeilds({...emiFeilds,r:value.target.value}),formik.setFieldValue("roi",value.target.value)}}/>
+                     
                       </Stack>
                     </Grid>
                     <Grid item xs={12} sm={6} md={4}>
@@ -147,6 +163,7 @@ const LoanProfile = ({loan, indexloanProfileHander}) => {
                           {...getFieldProps('tenureYears')}
                           error={Boolean(touched.tenureYears && errors.tenureYears)}
                           helperText={touched.tenureYears && errors.tenureYears}
+                          inputRef={t}
                         />
                       </Stack>
                     </Grid>
@@ -156,11 +173,12 @@ const LoanProfile = ({loan, indexloanProfileHander}) => {
                         <TextField
                           type="number"
                           fullWidth
-                          id="loan-engineNo"
+                          id="loan-tenureMonths"
                           placeholder="Added Tenure in Months"
-                          {...getFieldProps('engineNo')}
-                          error={Boolean(touched.engineNo && errors.engineNo)}
-                          helperText={touched.engineNo && errors.engineNo}
+                          {...getFieldProps('tenureMonths')}
+                          error={Boolean(touched.tenureMonths && errors.tenureMonths)}
+                          helperText={touched.tenureMonths && errors.tenureMonths}
+                          inputRef={m}
                         />
                       </Stack>
                     </Grid>
@@ -174,7 +192,7 @@ const LoanProfile = ({loan, indexloanProfileHander}) => {
                         id="loan-emidate"
                         type="date"
                         format='dd/MM/yyyy'
-                        onChange={(value) => {formik.setFieldValue("emidate",value)}}
+                        onChange={(value) => {formik.setFieldValue("emidate",value.toLocaleDateString())}}
                         // {...getFieldProps('emidate')}
                         />
                       </Stack>
@@ -183,7 +201,9 @@ const LoanProfile = ({loan, indexloanProfileHander}) => {
                     <Grid item xs={12} sm={6} md={4}>
                       <Stack spacing={1}>
                         <InputLabel>Monthly Emi Amount (Rs)</InputLabel>
-                        <NumericFormat  thousandSeparator="," fullWidth customInput={TextField} placeholder="Emi amount" 
+                        <NumericFormat  thousandSeparator="," fullWidth customInput={TextField} 
+                        placeholder={((parseInt(emiFeilds.p) * (parseFloat(emiFeilds.r.substring(0,6))/100))/12)+ (parseInt(emiFeilds.p) / (parseInt(t.current.value) * 12  + parseInt(m.current.value))) + ' /-'}
+                        
                         id="loan-emi"
                         {...getFieldProps('emi')}
                         error={Boolean(touched.emi && errors.emi)}
@@ -201,6 +221,23 @@ const LoanProfile = ({loan, indexloanProfileHander}) => {
           </Form>
         </LocalizationProvider>
       </FormikProvider>
+      <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
+              <Button variant="outlined" disabled={activeStep === 0} onClick={() => handleBack(activeStep,formik.values)} sx={{ mr: 1 }}>
+                Back
+              </Button>
+              <Box sx={{ flex: '1 1 auto' }} />
+              {activeStep !== steps &&
+                (completed[activeStep] ? (
+                  <Button color="success">Step {activeStep + 1} already completed</Button>
+                ) : (
+                  <Button onClick={() => handleComplete(activeStep,formik.values)} color="success" variant={activeStep === totalSteps() - 1 ? 'contained' : 'outlined'}>
+                    {completedSteps() === totalSteps() - 1 ? 'Finish' : 'Complete Step'}
+                  </Button>
+                ))}
+              <Button disabled={activeStep === steps - 1} onClick={() => handleNext(activeStep,formik.values)} sx={{ ml: 1 }} variant="contained" color="primary">
+                Next
+              </Button>
+            </Box>
     </>
   );
 };

@@ -6,6 +6,7 @@ import { Alert, Box, Button, Step, Stepper, StepButton } from '@mui/material';
 
 import CustomerListPage from './list';
 import LoanProfile from './loan';
+import FinancePriview from './priview';
 // import InsuranceProfile from './insurance';
 import VechileProfile from './vechile';
 // import FormCustomerAdd from 'sections/apps/customer/FormCustomerAdd';
@@ -36,46 +37,84 @@ export default function FinancePage() {
   const [completed, setCompleted] = useState({});
   const [customers, setCustomers] = useState([]);
   const [surity, setSurity] = useState([]);
+  const [loanProfile,setLoanProfile]= useState({});
+  const [vechileNdInsurenceProfile, setVechileNdInsuranceProfile] = useState({});
+
 
   const totalSteps = () => steps.length;
   const completedSteps = () => Object.keys(completed).length;
   const isLastStep = () => activeStep === totalSteps() - 1;
   const allStepsCompleted = () => completedSteps() === totalSteps();
+  const selectedCustomers=(userIds) => {
+    console.log('index .js ')
+    console.log(userIds);
+    setCustomers(userIds);
+  }
+  const selectedSurity = (userIds) => {
+    setSurity(userIds)
+  }
+ 
 
-  const selectedCustomers = (selcted) => {
-    setCustomers(selcted);
-    console.log('add super selcted');
-    console.log(customers);
-    console.log(selcted);
-  }
-  const selectedSurity = (selcted) => {
-    console.log('add super selcted');
-    setSurity(selcted);
-    console.log(surity)
-  }
-  const handleNext = () => {
+  //stepper methods 
+  const handleNext = (stepNo,stepData) => {
+    if(stepNo===0){
+      setCustomers(stepData);
+    }else if(stepNo ===1){
+      setSurity(stepData);
+    }else if(stepNo ===2){
+      setVechileNdInsuranceProfile(stepData);
+    }else if(stepNo ===3){
+      setLoanProfile(stepData); 
+    }
     const newActiveStep =
       isLastStep() && !allStepsCompleted()
-        ? // It's the last step, but not all steps have been completed,
-          // find the first step that has been completed
-          steps.findIndex((step, i) => !(i in completed))
+        ? steps.findIndex((step, i) => !(i in completed))
         : activeStep + 1;
     setActiveStep(newActiveStep);
   };
-
-  const handleBack = () => {
+  const handleBack = (stepNo,stepData) => {
+    if(stepNo===0){
+      setCustomers(stepData);
+    }else if(stepNo ===1){
+      setSurity(stepData);
+    }else if(stepNo ===2){
+      setVechileNdInsuranceProfile(stepData);
+    }else if(stepNo ===3){
+      setLoanProfile(stepData); 
+    }
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
-
   const handleStep = (step) => () => {
     setActiveStep(step);
   };
-
-  const handleComplete = () => {
+  const handleComplete = (stepNo,stepData) => {
+    if(stepNo===0){
+      setCustomers(stepData);
+    }else if(stepNo ===1){
+      setSurity(stepData);
+    }else if(stepNo ===2){
+      setVechileNdInsuranceProfile(stepData);
+    }else if(stepNo ===3){
+      setLoanProfile(stepData); 
+    }
     const newCompleted = completed;
     newCompleted[activeStep] = true;
     setCompleted(newCompleted);
-    handleNext();
+    handleNext()
+    if(completedSteps() === totalSteps()){
+      console.log('finished clicked ')
+      console.log('customer data')
+      console.log(customers)
+      console.log('security  data')
+      console.log(surity)
+      console.log('vechle data')
+      console.log(vechileNdInsurenceProfile)
+      console.log('loan data')
+      console.log(loanProfile)
+
+
+    } 
+    
   };
 
   const handleReset = () => {
@@ -109,41 +148,71 @@ export default function FinancePage() {
         ) : (
           <>
             <StepWrapper value={activeStep} index={0}>
-             <CustomerListPage selectedCustomers = {selectedCustomers}/>
+             <CustomerListPage selectedCustomers={selectedCustomers}
+             customers = {customers}
+             activeStep={activeStep}  
+             handleBack={handleBack} 
+             steps={steps.length} 
+             completed={completed} 
+             handleComplete={handleComplete} 
+             totalSteps={totalSteps} 
+             completedSteps={completedSteps}
+             handleNext={handleNext}
+             />
             </StepWrapper>
             <StepWrapper value={activeStep} index={1}>
-            <CustomerListPage selectedCustomers = {selectedSurity}/>
+            <CustomerListPage selectedCustomers = {selectedSurity}
+             customers = {surity}
+             activeStep={activeStep}  
+             handleBack={handleBack} 
+             steps={steps.length} 
+             completed={completed} 
+             handleComplete={handleComplete} 
+             totalSteps={totalSteps} 
+             completedSteps={completedSteps}
+             handleNext={handleNext}
+             />
             </StepWrapper>
             <StepWrapper value={activeStep} index={2}>
-              <VechileProfile/>
+              <VechileProfile vechile={vechileNdInsurenceProfile}
+               activeStep={activeStep}  
+               handleBack={handleBack} 
+               steps={steps.length} 
+               completed={completed} 
+               handleComplete={handleComplete} 
+               totalSteps={totalSteps} 
+               completedSteps={completedSteps}
+               handleNext={handleNext}/>
             </StepWrapper>
             <StepWrapper value={activeStep} index={3}>
             {/* <InsuranceProfile/> */}
-            <LoanProfile/>
+            <LoanProfile
+             loan={loanProfile}
+             activeStep={activeStep}  
+             handleBack={handleBack} 
+             steps={steps.length} 
+             completed={completed} 
+             handleComplete={handleComplete} 
+             totalSteps={totalSteps} 
+             completedSteps={completedSteps}
+             handleNext={handleNext}/>
             </StepWrapper>
             <StepWrapper value={activeStep} index={4}>
-            <CustomerListPage selectedCustomers = {selectedCustomers}/>
-            <CustomerListPage selectedCustomers = {selectedSurity}/>
-            <VechileProfile/>
-            <LoanProfile/>
+          <FinancePriview 
+          customerId={customers}
+          surityId={surity}
+          loanProfile={loanProfile}
+          vechilProfile={vechileNdInsurenceProfile}
+           activeStep={activeStep}  
+           handleBack={handleBack} 
+           steps={steps.length} 
+           completed={completed} 
+           handleComplete={handleComplete} 
+           totalSteps={totalSteps} 
+           completedSteps={completedSteps}
+           handleNext={handleNext}/>
             </StepWrapper>
-            <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
-              <Button variant="outlined" disabled={activeStep === 0} onClick={handleBack} sx={{ mr: 1 }}>
-                Back
-              </Button>
-              <Box sx={{ flex: '1 1 auto' }} />
-              {activeStep !== steps.length &&
-                (completed[activeStep] ? (
-                  <Button color="success">Step {activeStep + 1} already completed</Button>
-                ) : (
-                  <Button onClick={handleComplete} color="success" variant={activeStep === totalSteps() - 1 ? 'contained' : 'outlined'}>
-                    {completedSteps() === totalSteps() - 1 ? 'Finish' : 'Complete Step'}
-                  </Button>
-                ))}
-              <Button disabled={activeStep === steps.length - 1} onClick={handleNext} sx={{ ml: 1 }} variant="contained" color="primary">
-                Next
-              </Button>
-            </Box>
+            
           </>
         )}
       </div>

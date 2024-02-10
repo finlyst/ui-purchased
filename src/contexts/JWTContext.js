@@ -88,7 +88,8 @@ export const JWTProvider = ({ children }) => {
     const { serviceToken, user } = response.data;
     console.log(serviceToken);
     console.log(user);
-    setSession(`eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1ZTg2ODA5MjgzZTI4Yjk2ZDJkMzg1MzciLCJpYXQiOjE3MDA5MTU2NDIsImV4cCI6MTcwMTAwMjA0Mn0.pGf_f8SBkLxf_53amlngQzuL6rULtmTXCxnkGdotCeA`);
+    setSession(serviceToken);
+    setSession(`eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1ZTg2ODA5MjgzZTI4Yjk2ZDJkMzg1MzciLCJpYXQiOjE3MDY5NDcyNDcsImV4cCI6MTcwNzAzMzY0N30.YU1pLQzKZ07GAVxEIQ-89lqEi6N4EWrOSy4iHX1LJZc`);
     dispatch({
       type: LOGIN,
       payload: {
@@ -101,7 +102,6 @@ export const JWTProvider = ({ children }) => {
   const register = async (email, password, firstName, lastName) => {
     // todo: this flow need to be recode as it not verified
     const id = chance.bb_pin();
-    // const response = await axios.post('http://localhost:8082/api/account/register', {
     const response = await axios.post('http://localhost:8082/api/account/register', {
       id,
       email,
